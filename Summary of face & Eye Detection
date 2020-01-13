@@ -1,0 +1,82 @@
+Face and Eye Detection and bounding them with rectangle block:-
+------------------------------------------------------------------------
+Initally for detetcting object we are creating rectanle boundry to exactly focus on things which we actually wanna check and observe
+I have developed this code in Google Colab which is s great platform for developing Python based machine learning models. 
+I will be explaining code line by line so that it will be easy for beginner like me and will be time saving for them
+
+Let's Start:
+Input:- A normal photo having face .
+Output:- Face and eye bounded by rectagle boundry (Face and eye detection)
+
+Some useful theory which is needed to understand things correctly:
+We have used OpenCv so what is this we will just have a look :-
+
+OpenCv:-Object detection is a computer technology related to computer vision and image processing that deals with detecting instances of semantic objects of a certain class 
+( such as human faces, cars, fruits, etc. ) in digital images and videos.
+
+There are several object classifiers which are used to classify objects we will be using one of those classifier to classify our face and eye
+
+Used Classifier in this project:-(Haar feature-based cascade classifier)
+
+Haar feature-based cascade classifier is a machine learning based approach where a cascade function is trained 
+from a lot of positive and negative images. It is then used to detect objects in other images.
+
+
+CODE:-
+pip3 install opencv-python            #installing OpenCv for further operations
+import cv2                            #After installing OpenCV we need to import it.
+# loading the test image
+from google.colab import files
+def getLocalFiles():
+    _files = files.upload()
+    if len(_files) >0:
+       for k,v in _files.items():
+         open(k,'wb').write(v)
+getLocalFiles()                       #We need to import our input image so if we are working on google colab we need to import it from our local system but if we are working on anaconda we need to keep the input file in 
+                                       the working directory. For Importing file I have developed this code having method call and it will open a text box asking for the file/Input photo from any location.
+                                       
+!pip install git+git://github.com/PnS2019/pnslib.git   #For getting file of "Haar feature-based cascade classifier" we need to import from either github or dowload it in local system . Here I have taken directly from Github
+                                                        so we need to do some initial installation
+                                                        
+  import cv2
+from pnslib import utils
+import matplotlib.pyplot as plt        # for displaying output as photo at last we need this and in general it i used for plotting and data visualization
+
+
+image = cv2.imread("harsh.jpeg")       #I have taken this "harsh.jpeg" from local directory to my Google Colab(i.e please check with jpeg and jpg)
+plt.imshow(image)                      # Used to display input image
+
+
+# converting to grayscale
+image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)   #Working with object detection and image classification we are initally converting them in grayscale image
+
+# initialize the face recognizer (default face haar cascade)
+face_cascade = cv2.CascadeClassifier(
+    utils.get_haarcascade_path('haarcascade_frontalface_default.xml'))   # This is for face detection.As this haarcascade file is not in my local directory when working in colab so we are using Utils to get the file and as you will notice it is for frontalface 
+eye_cascade = cv2.CascadeClassifier(
+    utils.get_haarcascade_path('haarcascade_eye.xml'))                   # This is for Eye detection and so the file which we are using is an eye xml
+
+# detect all the faces in the image
+faces = face_cascade.detectMultiScale(image_gray, 1.3, 5)                # If there are multiple face in one image so we will be running and executing this liine of code
+# print the number of faces detected
+print(f"{len(faces)} faces detected in the image.")
+
+# for every face, draw a blue rectangle
+for x, y, width, height in faces:   #diemension of photo and for face
+    cv2.rectangle(image, (x, y), (x + width, y + height), color=(255, 0, 0), thickness=2) # dimension of rectangle
+    roi_gray = image_gray[y:y+height, x:x+width]        # for converted gray image
+    roi_color=image[y:y+height, x:x+width]              # for the original image
+eyes = eye_cascade.detectMultiScale(roi_gray)           #doing for eye we have written similar code for face
+for (ex, ey, ew, eh) in eyes:
+     cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
+
+# save the image with rectangles
+cv2.imwrite("Face_eye_detection.jpeg", image)
+
+img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+plt.figure()
+plt.imshow(image)                                      #getting the output as a photo
+plt.show()                                                      
+
+
+
